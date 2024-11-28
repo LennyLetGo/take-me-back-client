@@ -1,26 +1,12 @@
 // context/CollectionsContext.js
 import React, { createContext, useState } from 'react';
-
+import axios from 'axios';
 export const CollectionsContext = createContext([]);
 
 export const CollectionsProvider = ({ children }) => {
-  const [collections, setCollections] = useState([
-    {
-      id: 0,
-      name: 'Collection 1',
-      items: ['Item 1', 'Item 2', 'Item 3'],
-      image: 'https://via.placeholder.com/100',
-    },
-    {
-      id: 1,
-      name: 'Collection 2',
-      items: ['Item A', 'Item B'],
-      image: 'https://via.placeholder.com/100/0000FF',
-    },
-  ]);
+  const [collections, setCollections] = useState([]);
   const [currentCollection, setCurrentCollection] = useState(null)
-
-  const addTrackToCollection = (collectionId, track) => {
+  const addTrackToCollection = async (collectionId, name, track, user_id, title, artist) => {
     setCollections((prevCollections) => {
       return prevCollections.map((collection) =>
         collection.id === collectionId
@@ -28,10 +14,10 @@ export const CollectionsProvider = ({ children }) => {
           : collection
       );
     });
+    const res = await axios.post("http://localhost:5000/collections/add", { user_id, title, artist, name })
   };
-
   return (
-    <CollectionsContext.Provider value={{ collections, addTrackToCollection, currentCollection, setCurrentCollection }}>
+    <CollectionsContext.Provider value={{ collections, setCollections, addTrackToCollection, currentCollection, setCurrentCollection }}>
       {children}
     </CollectionsContext.Provider>
   );

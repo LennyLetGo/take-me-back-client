@@ -17,8 +17,8 @@ function TrackList(props) {
     const fetchTracks = async () => {
       try {
         const response = await axios.get('http://localhost:5000/tracks');
-        setTracks(response.data);
-        setFilteredTracks(response.data);
+        setTracks(response.data.tracks);
+        setFilteredTracks(response.data.tracks);
       } catch (error) {
         console.error('Error fetching tracks:', error);
       }
@@ -32,16 +32,20 @@ function TrackList(props) {
     setFilter(value);
 
     const filtered = tracks.filter(track =>
-      track.toLowerCase().includes(value.toLowerCase())
+      track.title.toLowerCase().includes(value.toLowerCase())
     );
     setFilteredTracks(filtered);
   };
 
   const handleAddTrackToCollection = (collectionId, track) => {
-    addTrackToCollection(collectionId, track); // Add track to selected collection
+    //collectionId, name, track, userId, title, artist
+    let user = JSON.parse(localStorage.getItem('user'))
+    console.log(user.id)
+    addTrackToCollection(collectionId, currentCollection.name, track, user.id, track.title, track.artist); // Add track to selected collection
   };
   const handlePlay = (track) => {
-    setNowPlayingResource(track.replaceAll(' ', '_'))
+    let resource = `${track.artist.replaceAll(' ', '_')}-${track.title.replaceAll(' ', '_')}`
+    setNowPlayingResource(resource)
   }
 
   return (
@@ -59,7 +63,7 @@ function TrackList(props) {
         ) : (
           filteredTracks.map((track, index) => (
             <div key={index}>
-              {track}
+              {`${track.artist} - ${track.title}`}
               <button onClick={() => handleAddTrackToCollection(currentCollection.id, track)}>
                 Add to Current Collection
               </button>

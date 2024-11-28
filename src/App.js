@@ -17,13 +17,16 @@ function App() {
   const selectedItem = useContext(CollectionsContext).currentCollection
   const setSelectedItem = useContext(CollectionsContext).setCurrentCollection
   const collections = useContext(CollectionsContext).collections
+  const setCollections = useContext(CollectionsContext).setCollections
   const currentCollection = useContext(CollectionsContext).currentCollection
   const nowPlayingResource = useContext(NowPlayingContext).resource
   const setNowPlayingResource = useContext(NowPlayingContext).setResource
   const [loadTracks, setLoadTracks] = useState(false)
   const [showLoginForm, setShowLoginForm] = useState(false);
   const [showSignupForm, setShowSignupForm] = useState(false);
-  const [user, setUser] = useState(localStorage.getItem('user'))
+  const [showAddCollection, setShowAddCollection] = useState(false)
+  const [user, setUser] = useState(JSON.parse(localStorage.getItem('user')))
+  const [fetchCollections, setFetchCollections] = useState(true)
   console.log(nowPlayingResource)
 
   // Handle form submission
@@ -50,7 +53,61 @@ function App() {
   };
 
   const handlePlay = (track) => {
-    setNowPlayingResource(track.replaceAll(' ', '_'))
+    let resource = `${track.artist}-${track.title}`
+    setNowPlayingResource(resource.replaceAll(' ', '_'))
+  }
+
+  const handleSignIn = async (event) => {
+    event.preventDefault()
+    let data = new FormData(event.target);
+    let username = data.get('username')
+    let password = data.get('password')
+    const res = await axios.post("http://localhost:5000/login", {username, password})
+    let user = res.data.user
+    if(user) {
+      localStorage.setItem('user', JSON.stringify(user))
+      setUser(user)
+      fetchTracksByCollection(user.id)
+    }
+    else {
+      alert("Invalid username or password")
+    }
+  }
+
+  const handleSignUp = async (event) => {
+    event.preventDefault()
+    let data = new FormData(event.target);
+    let username = data.get('username')
+    let password = data.get('password')
+    const res = await axios.post("http://localhost:5000/create-user", {username, password})
+    let user = res.data.user
+    if(user) {
+      localStorage.setItem('user', JSON.stringify(user))
+      setUser(user)
+      fetchTracksByCollection(user.id)
+    }
+    else {
+      alert("Server Error")
+    }
+  }
+
+  const handleAddCollection = (event) => {
+    event.preventDefault()
+    let data = new FormData(event.target);
+    let name = data.get('name')
+    let newCollection = {
+        id: collections.length,
+        name: name,
+        items: [],
+        image: 'https://via.placeholder.com/100', // Placeholder image
+    }
+    console.log(collections)
+    if(collections.length === 0) {
+      setCollections([newCollection])
+    }else {
+      setCollections([...collections, newCollection])
+    }
+    setShowAddCollection(false)
   }
 
   const renderCollectionsOrSignin = () => {
@@ -66,7 +123,7 @@ function App() {
             {/* Login Form */}
             {showLoginForm && (
               <div style={{ marginTop: '10px' }}>
-                <form>
+                <form onSubmit={(event) => handleSignIn(event)}>
                   <div>
                     <label>
                       Username:
@@ -95,7 +152,7 @@ function App() {
             {/* Signup Form */}
             {showSignupForm && (
               <div style={{ marginTop: '10px' }}>
-                <form>
+                <form onSubmit={(event) => handleSignUp(event)}>
                   <div>
                     <label>
                       Username:
@@ -128,7 +185,30 @@ function App() {
               </div>
             ))}
           </div>
-          <button onClick={(event)=>{}}>Add new Collection</button>
+          {/* Add Collection */}
+          <button onClick={() => setShowAddCollection(!showAddCollection)}>
+              Add Collection
+            </button>
+            
+            {/* Signup Form */}
+            {showAddCollection && (
+              <div style={{ marginTop: '10px' }}>
+                <form onSubmit={(event) => handleAddCollection(event)}>
+                  <div>
+                    <label>
+                      Collection Name:
+                      <input type="text" name="name" />
+                    </label>
+                  </div>
+                  <button type="submit">Submit</button>
+                </form>
+              </div>
+            )}
+          <button onClick={(event)=>{
+            localStorage.removeItem('user')
+            setUser(null)
+            setCollections([])
+          }}>Signout</button>
         </div>
       )
     }
@@ -156,7 +236,7 @@ function App() {
               <div>
                 {collections[currentCollection.id].items.map((item, index) => (
                   <div onClick={(event) => handlePlay(item)}>
-                    <p>{item}</p>
+                    <p>{`${item.artist} - ${item.title}`}</p>
                   </div>
                 ))}
               </div>
@@ -169,6 +249,49 @@ function App() {
     }
   }
 
+  const fetchTracksByCollection = async (userId) => {
+    try {
+        // Call the API to fetch tracks
+        const response = await axios.get(`http://localhost:5000/collections/${userId}`);
+
+        if (response.status !== 200) {
+            throw new Error('Failed to fetch tracks.');
+        }
+
+        const tracks = response.data.tracks;
+
+        // Group tracks by collection name and structure the data
+        const groupedCollections = Object.values(
+            tracks.reduce((acc, track) => {
+                const { name, title, artist } = track;
+
+                if (!acc[name]) {
+                    acc[name] = {
+                        id: Object.keys(acc).length,
+                        name,
+                        items: [],
+                        image: 'https://via.placeholder.com/100', // Placeholder image
+                    };
+                }
+
+                acc[name].items.push({
+                  artist: artist,
+                  title: title
+                });
+                return acc;
+            }, {})
+        );
+
+        setCollections(groupedCollections)
+    } catch (error) {
+        console.error('Error fetching tracks:', error);
+        throw error;
+    }
+};
+  if(fetchCollections && user !== null) {
+    fetchTracksByCollection(user.id)
+    setFetchCollections(false)
+  }
   return (
     <div className="App">
       <div className="main-content">
