@@ -3,11 +3,17 @@ import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
+import { CollectionsProvider } from './context/CollectionsContext';
+import { NowPlayingProvider } from './context/NowPlayingContext';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
-    <App />
+    <CollectionsProvider>
+      <NowPlayingProvider>
+        <App/>
+      </NowPlayingProvider>
+    </CollectionsProvider>
   </React.StrictMode>
 );
 
