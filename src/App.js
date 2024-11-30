@@ -307,7 +307,7 @@ function App() {
   const fetchTracksByCollection = async (userId) => {
     try {
         // Call the API to fetch tracks
-        const response = await axios.get(`http://localhost:5000/collections/${userId}`);
+        const response = await axios.get(`http://192.168.5.217:5000/collections/${userId}`);
 
         if (response.status !== 200) {
             throw new Error('Failed to fetch tracks.');
