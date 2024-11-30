@@ -44,7 +44,7 @@ function App() {
     setResponseMessage('');
 
     try {
-      const response = await axios.post('http://localhost:5000/process-url', { url });
+      const response = await axios.post('http://192.168.5.217:5000/process-url', { url });
       setResponseMessage(response.data.message || 'URL processed successfully');
       setLoadTracks(!loadTracks)
     } catch (error) {
@@ -117,7 +117,7 @@ function App() {
     let data = new FormData(event.target);
     let username = data.get('username')
     let password = data.get('password')
-    const res = await axios.post("http://localhost:5000/login", {username, password})
+    const res = await axios.post("http://192.168.5.217:5000/login", {username, password})
     let user = res.data.user
     if(user) {
       localStorage.setItem('user', JSON.stringify(user))
@@ -134,7 +134,7 @@ function App() {
     let data = new FormData(event.target);
     let username = data.get('username')
     let password = data.get('password')
-    const res = await axios.post("http://localhost:5000/create-user", {username, password})
+    const res = await axios.post("http://192.168.5.217:5000/create-user", {username, password})
     let user = res.data.user
     if(user) {
       localStorage.setItem('user', JSON.stringify(user))
@@ -307,7 +307,7 @@ function App() {
   const fetchTracksByCollection = async (userId) => {
     try {
         // Call the API to fetch tracks
-        const response = await axios.get(`http://localhost:5000/collections/${userId}`);
+        const response = await axios.get(`http://192.168.5.217:5000/collections/${userId}`);
 
         if (response.status !== 200) {
             throw new Error('Failed to fetch tracks.');
