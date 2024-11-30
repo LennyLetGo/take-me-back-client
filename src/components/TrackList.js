@@ -10,8 +10,10 @@ function TrackList(props) {
   const [filter, setFilter] = useState('');
   const addTrackToCollection = useContext(CollectionsContext).addTrackToCollection; // Use context
   const currentCollection = useContext(CollectionsContext).currentCollection;
-  const nowPlayingResource = useContext(NowPlayingContext).resource
-  const setNowPlayingResource = useContext(NowPlayingContext).setResource
+  const playlist = useContext(NowPlayingContext).playlist
+  const playListIndex = useContext(NowPlayingContext).playlistIndex
+  const setPlaylistIndex = useContext(NowPlayingContext).setPlaylistIndex
+  const addToPlaylist = useContext(NowPlayingContext).addToPlaylist
 
   useEffect(() => {
     const fetchTracks = async () => {
@@ -45,7 +47,15 @@ function TrackList(props) {
   };
   const handlePlay = (track) => {
     let resource = `${track.artist.replaceAll(' ', '_')}-${track.title.replaceAll(' ', '_')}`
-    setNowPlayingResource(resource)
+    let bundle = {
+      context: "tracklist",
+      collection: -1,
+      resource: resource
+    }
+    console.log('Setting now playing:')
+    console.log(bundle)
+    addToPlaylist(bundle)
+    setPlaylistIndex(playlist.length)
   }
 
   return (

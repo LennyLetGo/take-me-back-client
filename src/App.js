@@ -19,15 +19,17 @@ function App() {
   const collections = useContext(CollectionsContext).collections
   const setCollections = useContext(CollectionsContext).setCollections
   const currentCollection = useContext(CollectionsContext).currentCollection
-  const nowPlayingResource = useContext(NowPlayingContext).resource
-  const setNowPlayingResource = useContext(NowPlayingContext).setResource
+  const playlist = useContext(NowPlayingContext).playlist
+  const setPlaylist = useContext(NowPlayingContext).setPlaylist
+  const playListIndex = useContext(NowPlayingContext).playlistIndex
+  const setPlayListIndex = useContext(NowPlayingContext).setPlaylistIndex
+  const addToPlaylist = useContext(NowPlayingContext).addToPlaylist
   const [loadTracks, setLoadTracks] = useState(false)
   const [showLoginForm, setShowLoginForm] = useState(false);
   const [showSignupForm, setShowSignupForm] = useState(false);
   const [showAddCollection, setShowAddCollection] = useState(false)
   const [user, setUser] = useState(JSON.parse(localStorage.getItem('user')))
   const [fetchCollections, setFetchCollections] = useState(true)
-  console.log(nowPlayingResource)
 
   // Handle form submission
   const handleSubmit = async (e) => {
@@ -52,9 +54,62 @@ function App() {
     }
   };
 
-  const handlePlay = (track) => {
-    let resource = `${track.artist}-${track.title}`
-    setNowPlayingResource(resource.replaceAll(' ', '_'))
+  const handlePlay = (collectionId, track) => {
+    let resource = `${track.artist}-${track.title}`.replaceAll(' ', '_')
+    // New collection.... reset the playlist
+    if(playlist.length > 0 && playlist[playListIndex].collectionId !== collectionId) {
+      setPlaylist([])
+      setPlayListIndex(0)
+    }
+    console.log('Target Track')
+    console.log(resource)
+    // Loop through and add all songs to playlist
+    let tracks = collections[collectionId].items
+    console.log('Current Collection Tracks')
+    console.log(tracks)
+    let earlierInPlaylistTracks = []
+    let appendToEnd = false
+    let i = 0
+    while(i < tracks.length) {
+      let currentTrack = tracks[i]
+      let currentTrackResource = `${currentTrack.artist}-${currentTrack.title}`.replaceAll(" ", "_")
+      if (resource === currentTrackResource) {
+        console.log(`Adding: ${resource}`)
+        // We found the current song, so now just add until we reached end of list
+        addToPlaylist({
+          context: "collection",
+          collection: collectionId,
+          resource: resource
+        }) // true because we want to play now
+        appendToEnd = true
+      }
+      else {
+        if (appendToEnd) {
+          console.log(`Adding ${currentTrackResource}`)
+          addToPlaylist({
+            context: "collection",
+            collection: collectionId,
+            resource: currentTrackResource
+          }) 
+        }
+        else {
+          earlierInPlaylistTracks.push(currentTrackResource)
+        }
+      }
+      i+=1
+    }
+    let j = 0
+    // Add the songs we skipped at the beginning of the playlist to the end
+    while(j < earlierInPlaylistTracks.length) {
+      console.log(`Adding ${earlierInPlaylistTracks[j]}`)
+      addToPlaylist({
+        context: "collection",
+        collection: collectionId,
+        resource: earlierInPlaylistTracks[j]
+      })
+      j+=1
+    }
+    console.log(playlist)
   }
 
   const handleSignIn = async (event) => {
@@ -235,7 +290,7 @@ function App() {
               <h3>{collections[currentCollection.id].name}</h3>
               <div>
                 {collections[currentCollection.id].items.map((item, index) => (
-                  <div onClick={(event) => handlePlay(item)}>
+                  <div onClick={(event) => handlePlay(currentCollection.id, item)}>
                     <p>{`${item.artist} - ${item.title}`}</p>
                   </div>
                 ))}
@@ -288,6 +343,7 @@ function App() {
         throw error;
     }
 };
+
   if(fetchCollections && user !== null) {
     fetchTracksByCollection(user.id)
     setFetchCollections(false)
@@ -357,7 +413,7 @@ function App() {
 
       {/* Audio Player */}
       <div className="audio-bar">
-        <HLSPlayer fileId={nowPlayingResource}/>
+        <HLSPlayer bundle={playlist.length != 0 ? playlist[playListIndex] : {context: "NA",collection:-1,resource:''}}/>
       </div>
     </div>
   );
