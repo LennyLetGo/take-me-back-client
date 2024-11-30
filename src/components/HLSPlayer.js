@@ -26,7 +26,7 @@ function HLSPlayer({ bundle }) {
     if(bundle.context === 'tracklist') {
       // fetch suggested from tracklist
       if(fetchSuggestedSong) {
-        const res = await axios.get("http://localhost:5000/tracks")
+        const res = await axios.get("http://192.168.5.217:5000/tracks")
         const tracks = res.data.tracks
         var track = tracks[(Math.floor(tracks.length * Math.random()))]
         var currentTrackResource = `${track.artist}-${track.title}`.replaceAll(" ", "_")
@@ -65,7 +65,7 @@ function HLSPlayer({ bundle }) {
       const hls = new Hls();
 
       // Construct the playlist URL dynamically based on the fileId
-      const playlistUrl = `http://localhost:5000/audio/${bundle.resource}`;
+      const playlistUrl = `http://192.168.5.217:5000/audio/${bundle.resource}`;
 
       // Attach the HLS instance to the audio element
       hls.loadSource(playlistUrl);
@@ -81,6 +81,35 @@ function HLSPlayer({ bundle }) {
           setError('Failed to load HLS stream');
         }
       });
+
+      // Media
+      if ('mediaSession' in navigator) {
+        navigator.mediaSession.metadata = new MediaMetadata({
+          title: bundle.resource,
+          artist: '',
+          album: '',
+          artwork: [
+            //{ src: 'path-to-artwork.jpg', sizes: '512x512', type: 'image/jpeg' },
+          ],
+        });
+        // Set up action handlers
+        navigator.mediaSession.setActionHandler('play', () => {
+          audioRef.current.play();
+        });
+        navigator.mediaSession.setActionHandler('pause', () => {
+          audioRef.current.pause();
+        });
+        navigator.mediaSession.setActionHandler('previoustrack', () => {
+          console.log('Previous track');
+          // Implement logic for playing the previous track
+          handlePrevious();
+        });
+        navigator.mediaSession.setActionHandler('nexttrack', () => {
+          console.log('Next track');
+          // Implement logic for playing the next track
+          handleSkip()
+        });
+      }
 
       // Cleanup the HLS instance when the component is unmounted
       return () => {

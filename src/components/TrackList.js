@@ -19,7 +19,7 @@ function TrackList(props) {
   useEffect(() => {
     const fetchTracks = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/tracks');
+        const response = await axios.get('http://192.168.5.217:5000/tracks');
         setTracks(response.data.tracks);
         setFilteredTracks(response.data.tracks);
       } catch (error) {

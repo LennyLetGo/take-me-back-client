@@ -14,7 +14,7 @@ export const CollectionsProvider = ({ children }) => {
           : collection
       );
     });
-    const res = await axios.post("http://localhost:5000/collections/add", { user_id, title, artist, name })
+    const res = await axios.post("http://192.168.5.217:5000/collections/add", { user_id, title, artist, name })
   };
   return (
     <CollectionsContext.Provider value={{ collections, setCollections, addTrackToCollection, currentCollection, setCurrentCollection }}>
