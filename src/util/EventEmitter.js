@@ -17,6 +17,11 @@ class EventEmitter {
         (listener) => listener !== listenerToRemove
       );
     }
+    removeAll(event, listenerToRemove) {
+        if (!this.events[event]) return;
+    
+        this.events[event] = []
+    }
   
     emit(event, data) {
       if (!this.events[event]) return;

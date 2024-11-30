@@ -10,7 +10,7 @@ export const NowPlayingProvider = ({ children }) => {
   const [playlistIndex, setPlaylistIndex] = useState(0)
   const [resource, setResource] = useState(playlist !== null ? playlist[playlistIndex] : '') 
 
-  const addToPlaylist = (bundle, playNow) => {
+  const addToPlaylist = (bundle) => {
     setPlaylist((previousPlaylist) => {
       return [...previousPlaylist, bundle]
     })

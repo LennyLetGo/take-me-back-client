@@ -34,7 +34,7 @@ function TrackList(props) {
     setFilter(value);
 
     const filtered = tracks.filter(track =>
-      track.title.toLowerCase().includes(value.toLowerCase())
+      `${track.artist.toLowerCase()}-${track.title.toLowerCase()}`.includes(value.toLowerCase())
     );
     setFilteredTracks(filtered);
   };

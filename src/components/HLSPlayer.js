@@ -4,6 +4,7 @@ import axios from 'axios';
 import { CollectionsContext } from '../context/CollectionsContext';
 import { NowPlayingContext } from '../context/NowPlayingContext';
 import { eventEmitter } from '../util/EventEmitter'; // Path to your event emitter
+import TrackList from './TrackList';
 
 function HLSPlayer({ bundle }) {
   const [isLoading, setIsLoading] = useState(true);
@@ -12,6 +13,7 @@ function HLSPlayer({ bundle }) {
   const playlist = useContext(NowPlayingContext).playlist
   const playlistIndex = useContext(NowPlayingContext).playlistIndex
   const setPlaylistIndex = useContext(NowPlayingContext).setPlaylistIndex
+  const addToPlaylist = useContext(NowPlayingContext).addToPlaylist
   const suggestedSong = useContext(NowPlayingContext).suggestedSong
   const setSuggestedSong = useContext(NowPlayingContext).setSuggestedSong
   const fetchSuggestedSong = useContext(NowPlayingContext).fetchSuggestedSong
@@ -23,6 +25,24 @@ function HLSPlayer({ bundle }) {
     // Check resource and how to fetch suggested song
     if(bundle.context === 'tracklist') {
       // fetch suggested from tracklist
+      if(fetchSuggestedSong) {
+        const res = await axios.get("http://localhost:5000/tracks")
+        const tracks = res.data.tracks
+        var track = tracks[(Math.floor(tracks.length * Math.random()))]
+        var currentTrackResource = `${track.artist}-${track.title}`.replaceAll(" ", "_")
+        while(currentTrackResource === playlist[playlistIndex].resource) {
+          track = tracks[(Math.floor(tracks.length * Math.random()))]
+          currentTrackResource = `${track.artist}-${track.title}`.replaceAll(" ", "_")
+        }
+        setSuggestedSong({
+          context: "tracklist",
+          collection: -1,
+          resource: currentTrackResource
+        })
+        setFetchSuggestedSong(false)
+        console.log('Suggested Song: ')
+        console.log(currentTrackResource)
+      }
     }
     else if (bundle.context === 'collection') {
       if(playlist !== null) {
@@ -35,9 +55,9 @@ function HLSPlayer({ bundle }) {
     }
   }
   // Dont double up on listeners
-  eventEmitter.off('fetchSuggested', fetchSuggested)
+  eventEmitter.removeAll('fetchSuggested', fetchSuggested)
   // I need to capture events when the track is loaded
-  // eventEmitter.on('fetchSuggested', fetchSuggested)
+  eventEmitter.on('fetchSuggested', fetchSuggested)
 
   useEffect(() => {
     // Check if the browser supports HLS.js
@@ -53,7 +73,7 @@ function HLSPlayer({ bundle }) {
 
       hls.on(Hls.Events.MANIFEST_PARSED, () => {
         setIsLoading(false); // Data loaded successfully, stop loading indicator
-        //eventEmitter.emit('fetchSuggested')
+        eventEmitter.emit('fetchSuggested')
       });
 
       hls.on(Hls.Events.ERROR, (event, data) => {
@@ -74,11 +94,26 @@ function HLSPlayer({ bundle }) {
 
   // Playlist functions
   const handleOnEnded = (event) => {
+    console.log('Song ended')
+    console.log(playlist[playlistIndex].context)
     if(playlistIndex < playlist.length-1) {
       setPlaylistIndex(playlistIndex+1)
     }
     else {
-      setPlaylistIndex(0)
+      // If repeat and we are listening to a collection
+      // if repeat and we repeat on a song
+      // if we are in tracklist, fetch next song
+      if(playlist[playlistIndex].context === "tracklist") {
+        console.log('we are in tracklist, fetch next song')
+        addToPlaylist(suggestedSong)
+        console.log('Added:')
+        console.log(suggestedSong)
+        setFetchSuggestedSong(true)
+        setPlaylistIndex(playlistIndex+1)
+      }
+      else {
+        setPlaylistIndex(0)
+      }
     }
   }
   const handleSkip = (event) => {
@@ -86,13 +121,13 @@ function HLSPlayer({ bundle }) {
       setPlaylistIndex(playlistIndex+1)
     }
     else {
-      setPlaylistIndex(0)
+      setPlaylistIndex(playlist.length-1)
     }
   }
   
-  const handleRewind = (event) => {
+  const handlePrevious = (event) => {
     if(playlistIndex == 0) {
-      setPlaylistIndex(playlist.length-1)
+      setPlaylistIndex(0)
     }
     else {
       setPlaylistIndex(playlistIndex-1)
@@ -100,16 +135,43 @@ function HLSPlayer({ bundle }) {
   }
 
   return (
-    <div>
-      <div>
-        <p><strong>{bundle.resource}</strong></p>
+    <div style={styles.container}>
+      <p style={styles.sideText} onClick={handlePrevious}>
+        PREVIOUS
+      </p>
+      <div style={styles.audioContainer}>
+        <p>
+          <strong>{bundle.resource.replaceAll("_"," ")}</strong>
+        </p>
         <audio ref={audioRef} controls autoPlay onEnded={handleOnEnded}>
           <p>Your browser does not support HTML5 audio.</p>
         </audio>
       </div>
-      <p onClick={handleSkip}>NEXT</p>
+      <p style={styles.sideText} onClick={handleSkip}>
+        NEXT
+      </p>
     </div>
   );
-}
+};
+
+const styles = {
+  container: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    width: '80%', // Adjust width as needed
+    margin: '0 auto',
+    textAlign: 'center',
+  },
+  sideText: {
+    cursor: 'pointer',
+    fontWeight: 'bold',
+    fontSize: '16px',
+  },
+  audioContainer: {
+    flexGrow: 1,
+    textAlign: 'center',
+  },
+};
 
 export default HLSPlayer;
