@@ -1,9 +1,9 @@
 // components/TrackList.js
 import React, { useEffect, useState, useContext } from 'react';
+import './TrackList.css';
 import axios from 'axios';
 import { CollectionsContext } from '../context/CollectionsContext'; // Import context
 import { NowPlayingContext } from '../context/NowPlayingContext';
-import '../App.css';
 
 function TrackList(props) {
   const [tracks, setTracks] = useState([]);
@@ -58,29 +58,75 @@ function TrackList(props) {
     addToPlaylist(bundle)
     setPlaylistIndex(playlist.length)
   }
-
+  const buttonStyle = {
+    padding: '8px 12px',
+    border: 'none',
+    borderRadius: '5px',
+    backgroundColor: '#007bff', // Blue color for the button
+    color: 'white',
+    cursor: 'pointer',
+  };
   return (
-    <div style={{maxHeight:'75vh'}}>
+    <div style={{ maxHeight: '75vh', padding: '10px' }}>
       <h3>Track List</h3>
       <input
         type="text"
         value={filter}
         onChange={handleFilterChange}
         placeholder="Search for a track..."
+        style={{
+          width: '100%',
+          padding: '8px',
+          marginBottom: '10px',
+          borderRadius: '4px',
+          border: '1px solid #ccc',
+        }}
       />
-      <div className='tracklist' style={{overflow:'auto', maxHeight:'90%', width:'100%'}}>
+      <div
+        className="tracklist"
+        style={{
+          overflowY: 'auto',
+          maxHeight: '90%',
+          width: '100%',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '15px', // Gap between tracks
+        }}
+      >
         {filteredTracks.length === 0 ? (
           <p>No tracks found</p>
         ) : (
           filteredTracks.map((track, index) => (
-            <div key={index}>
-              {`${track.artist} - ${track.title}`}
-              <button onClick={() => handleAddTrackToCollection(currentCollection.id, track)}>
-                Add to Current Collection
-              </button>
-              <button onClick={() => handlePlay(track)}>
-                Play
-              </button>
+            <div
+              key={index}
+              className="track-item"
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '10px', // Gap between the track details and buttons
+                padding: '10px',
+                border: '1px solid #ddd',
+                borderRadius: '8px',
+                backgroundColor: '#f9f9f9',
+              }}
+            >
+              <span style={{ fontSize: '16px', fontWeight: 'bold' }}>
+                {`${track.artist} - ${track.title}`}
+              </span>
+              <div className="track-buttons" style={{ display: 'flex', gap: '10px' }}>
+                <button
+                  onClick={() => handleAddTrackToCollection(currentCollection.id, track)}
+                  style={buttonStyle}
+                >
+                  Add to Collection
+                </button>
+                <button
+                  onClick={() => handlePlay(track)}
+                  style={buttonStyle}
+                >
+                  Play
+                </button>
+              </div>
             </div>
           ))
         )}

@@ -1,0 +1,85 @@
+/* Styling for input field */
+input[type="text"] {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 10px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+  }
+  
+  /* Track list container */
+  .tracklist {
+    overflow-y: auto;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    gap: 15px; /* Gap between track items */
+  }
+  
+  /* Individual track item styling */
+  .track-item {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+  }
+  
+  /* Track name styling */
+  .track-item span {
+    font-size: 16px;
+    font-weight: bold;
+  }
+  
+  /* Button styling */
+  .track-buttons {
+    display: flex;
+    gap: 10px;
+  }
+  
+  button {
+    padding: 8px 12px;
+    border: none;
+    border-radius: 5px;
+    background-color: #007bff;
+    color: white;
+    cursor: pointer;
+  }
+  
+  button:hover {
+    background-color: #0056b3;
+  }
+  
+  button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+  }
+  
+  /* Mobile responsiveness */
+  @media (max-width: 768px) {
+    .track-item {
+      padding: 8px;
+    }
+  
+    /* Track list container */
+    .tracklist {
+        overflow-y: auto;
+        width: 100%;
+        max-height: 100%;
+        display: flex;
+        flex-direction: column;
+        gap: 15px; /* Gap between track items */
+    }
+    .track-buttons {
+      flex-direction: column;
+      align-items: stretch;
+    }
+  
+    button {
+      width: 100%; /* Buttons will stack on top of each other */
+    }
+  }
+  

@@ -270,14 +270,13 @@ function App() {
   }
 
   const renderCollectionView = () => {
-    if(currentCollection === null) {
+    if (currentCollection === null) {
       return (
         <div className="right-sidebar">
-            <p>Sign up to start creating collections!</p>
+          <p>Sign up to start creating collections!</p>
         </div>
-      )
-    }
-    else {
+      );
+    } else {
       return (
         <div className="right-sidebar">
           {collections[currentCollection.id] ? (
@@ -286,11 +285,23 @@ function App() {
                 className="large-image img-fluid mb-3"
                 src={collections[currentCollection.id].image}
                 alt={collections[currentCollection.id].name}
+                style={{ width: '100%', maxWidth: '300px', height: 'auto' }} // Ensure the image is responsive
               />
               <h3>{collections[currentCollection.id].name}</h3>
-              <div>
+              <div className="collection-items" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                 {collections[currentCollection.id].items.map((item, index) => (
-                  <div onClick={(event) => handlePlay(currentCollection.id, item)}>
+                  <div
+                    key={index}
+                    onClick={(event) => handlePlay(currentCollection.id, item)}
+                    style={{
+                      padding: '10px',
+                      border: '1px solid #ddd',
+                      borderRadius: '8px',
+                      backgroundColor: '#f9f9f9',
+                      cursor: 'pointer',
+                      transition: 'background-color 0.3s',
+                    }}
+                  >
                     <p>{`${item.artist} - ${item.title}`}</p>
                   </div>
                 ))}
@@ -300,9 +311,9 @@ function App() {
             <p>Select a collection from the left sidebar.</p>
           )}
         </div>
-      )
+      );
     }
-  }
+  };
 
   const fetchTracksByCollection = async (userId) => {
     try {
@@ -344,80 +355,54 @@ function App() {
     }
 };
 
-  if(fetchCollections && user !== null) {
-    fetchTracksByCollection(user.id)
-    setFetchCollections(false)
-  }
-  return (
-    <div className="App">
-      <div className="main-content">
-        {/* Left Sidebar */}
-        
-        {renderCollectionsOrSignin()}
+return (
+  <div className="App">
+    <div className="main-content">
+      {/* Left Sidebar */}
+      {renderCollectionsOrSignin()}
 
-        {/* Center Content */}
-        <div className="center-content">
-          <h2>Add Track</h2>
-          <div style={{ display: 'flex', flexDirection: 'column', width: '100%' }}>
-            <form
-              onSubmit={handleSubmit}
-              style={{
-                display: 'flex',
-                flexDirection: 'row',
-                width: '100%',
-                alignItems: 'center',
-                gap: '10px',
-              }}
-            >
-              <label htmlFor="url" style={{ whiteSpace: 'nowrap' }}>Enter URL:</label>
-              <input
-                type="text"
-                id="url"
-                value={url}
-                onChange={(e) => setUrl(e.target.value)}
-                placeholder="https://www.youtube.com/YourFavSong"
-                required
-                style={{
-                  flex: 1,
-                  padding: '0.5rem',
-                }}
-              />
-              <button
-                type="submit"
-                disabled={loading}
-                style={{
-                  padding: '0.5rem 1rem',
-                  backgroundColor: loading ? '#ccc' : '#007bff',
-                  color: '#fff',
-                  border: 'none',
-                  cursor: loading ? 'not-allowed' : 'pointer',
-                }}
-              >
-                {loading ? 'Processing...' : 'Process URL'}
-              </button>
-            </form>
+      {/* Center Content */}
+      <div className="center-content">
+        <h2>Add Track</h2>
+        <div className="form-container">
+          <form onSubmit={handleSubmit} className="url-form">
+            <label htmlFor="url">Enter URL:</label>
+            <input
+              type="text"
+              id="url"
+              value={url}
+              onChange={(e) => setUrl(e.target.value)}
+              placeholder="https://www.youtube.com/YourFavSong"
+              required
+            />
+            <button type="submit" disabled={loading} className="submit-btn">
+              {loading ? 'Processing...' : 'Process URL'}
+            </button>
+          </form>
 
-            {responseMessage && (
-              <div style={{ marginTop: '1rem' }}>
-                <p>{responseMessage}</p>
-              </div>
-            )}
-          </div>
-
-          <TrackList value={loadTracks}/>
+          {responseMessage && (
+            <div className="response-message">
+              <p>{responseMessage}</p>
+            </div>
+          )}
         </div>
-
-        {/* Right Sidebar */}
-        {renderCollectionView()}
+        <div className="track-list-container">
+          <TrackList value={loadTracks} />
+        </div>
       </div>
 
-      {/* Audio Player */}
-      <div className="audio-bar">
-        <HLSPlayer bundle={playlist.length != 0 ? playlist[playListIndex] : {context: "NA",collection:-1,resource:''}}/>
-      </div>
+
+      {/* Right Sidebar */}
+      {renderCollectionView()}
     </div>
-  );
-}
+
+    {/* Audio Player */}
+    <div className="audio-bar">
+      <HLSPlayer bundle={playlist.length !== 0 ? playlist[playListIndex] : { context: "NA", collection: -1, resource: '' }} />
+    </div>
+  </div>
+);
+};
 
 export default App;
 

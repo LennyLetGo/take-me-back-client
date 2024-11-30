@@ -5,6 +5,7 @@ import { CollectionsContext } from '../context/CollectionsContext';
 import { NowPlayingContext } from '../context/NowPlayingContext';
 import { eventEmitter } from '../util/EventEmitter'; // Path to your event emitter
 import TrackList from './TrackList';
+import './HLSPlayer.css'
 
 function HLSPlayer({ bundle }) {
   const [isLoading, setIsLoading] = useState(true);
@@ -164,43 +165,30 @@ function HLSPlayer({ bundle }) {
   }
 
   return (
-    <div style={styles.container}>
-      <p style={styles.sideText} onClick={handlePrevious}>
-        PREVIOUS
-      </p>
-      <div style={styles.audioContainer}>
-        <p>
-          <strong>{bundle.resource.replaceAll("_"," ")}</strong>
+    <div className="audio-container">
+      <div className="audio-player-controls">
+        {/* Previous Button */}
+        <p className="side-text" onClick={handlePrevious}>
+          PREVIOUS
         </p>
-        <audio ref={audioRef} controls autoPlay onEnded={handleOnEnded}>
-          <p>Your browser does not support HTML5 audio.</p>
-        </audio>
+
+        {/* Audio Player */}
+        <div className="audio-player-center">
+          <p>
+            <strong>{bundle.resource.replaceAll("_", " ")}</strong>
+          </p>
+          <audio ref={audioRef} controls autoPlay onEnded={handleOnEnded}>
+            <p>Your browser does not support HTML5 audio.</p>
+          </audio>
+        </div>
+
+        {/* Next Button */}
+        <p className="side-text" onClick={handleSkip}>
+          NEXT
+        </p>
       </div>
-      <p style={styles.sideText} onClick={handleSkip}>
-        NEXT
-      </p>
     </div>
   );
-};
-
-const styles = {
-  container: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    width: '80%', // Adjust width as needed
-    margin: '0 auto',
-    textAlign: 'center',
-  },
-  sideText: {
-    cursor: 'pointer',
-    fontWeight: 'bold',
-    fontSize: '16px',
-  },
-  audioContainer: {
-    flexGrow: 1,
-    textAlign: 'center',
-  },
-};
+}
 
 export default HLSPlayer;
