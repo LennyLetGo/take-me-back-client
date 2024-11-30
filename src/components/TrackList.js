@@ -3,6 +3,7 @@ import React, { useEffect, useState, useContext } from 'react';
 import axios from 'axios';
 import { CollectionsContext } from '../context/CollectionsContext'; // Import context
 import { NowPlayingContext } from '../context/NowPlayingContext';
+import '../App.css';
 
 function TrackList(props) {
   const [tracks, setTracks] = useState([]);
@@ -59,7 +60,7 @@ function TrackList(props) {
   }
 
   return (
-    <div>
+    <div style={{maxHeight:'75vh'}}>
       <h3>Track List</h3>
       <input
         type="text"
@@ -67,7 +68,7 @@ function TrackList(props) {
         onChange={handleFilterChange}
         placeholder="Search for a track..."
       />
-      <div>
+      <div className='tracklist' style={{overflow:'auto', maxHeight:'90%', width:'100%'}}>
         {filteredTracks.length === 0 ? (
           <p>No tracks found</p>
         ) : (
