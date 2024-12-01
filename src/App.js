@@ -44,7 +44,7 @@ function App() {
     setResponseMessage('');
 
     try {
-      const response = await axios.post('http://localhost:5000/process-url', { url });
+      const response = await axios.post('http://192.168.5.217:5000/process-url', { url });
       setResponseMessage(response.data.message || 'URL processed successfully');
       setLoadTracks(!loadTracks)
     } catch (error) {
@@ -117,7 +117,7 @@ function App() {
     let data = new FormData(event.target);
     let username = data.get('username')
     let password = data.get('password')
-    const res = await axios.post("http://localhost:5000/login", {username, password})
+    const res = await axios.post("http://192.168.5.217:5000/login", {username, password})
     let user = res.data.user
     if(user) {
       localStorage.setItem('user', JSON.stringify(user))
@@ -166,15 +166,19 @@ function App() {
   }
 
   const renderCollectionsOrSignin = () => {
-    if(user === null) {
+    if (user === null) {
       return (
         <div className="left-sidebar">
           <div style={{ width: '200px', margin: 'auto', textAlign: 'center' }}>
-            {/* Login Button */}
-            <button onClick={() => setShowLoginForm(!showLoginForm)}>
-              Login
-            </button>
-            
+            {/* Horizontal Button Layout */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', gap: '10px' }}>
+              {/* Login Button */}
+              <button onClick={() => setShowLoginForm(!showLoginForm)}>Login</button>
+    
+              {/* Signup Button */}
+              <button onClick={() => setShowSignupForm(!showSignupForm)}>Signup</button>
+            </div>
+    
             {/* Login Form */}
             {showLoginForm && (
               <div style={{ marginTop: '10px' }}>
@@ -195,15 +199,7 @@ function App() {
                 </form>
               </div>
             )}
-            
-            {/* Separator */}
-            <p>- or -</p>
-            
-            {/* Signup Button */}
-            <button onClick={() => setShowSignupForm(!showSignupForm)}>
-              Signup
-            </button>
-            
+    
             {/* Signup Form */}
             {showSignupForm && (
               <div style={{ marginTop: '10px' }}>
@@ -226,47 +222,121 @@ function App() {
             )}
           </div>
         </div>
-      )
-    }
-    else {
+      );
+    } else {
       return (
         <div className="left-sidebar">
-          <div className="icon-list">
-            {/* You can still access collections directly here if needed */}
-              {collections.map((collection) => (
-              <div key={collection.id} onClick={() => setSelectedItem(collection)}>
-                <img src={collection.image} alt={collection.name} />
-                <h4>{collection.name}</h4>
+          {/* Horizontal Scroll for Collections */}
+          <div
+            className="icon-list"
+            style={{
+              display: 'flex',
+              gap: '16px',
+              overflowX: 'auto',
+              padding: '10px 0',
+              whiteSpace: 'nowrap',
+              alignItems: 'center',
+            }}
+          >
+            {collections.map((collection) => (
+              <div
+                key={collection.id}
+                onClick={() => setSelectedItem(collection)}
+                style={{
+                  textAlign: 'center',
+                  cursor: 'pointer',
+                  flexShrink: 0,
+                  width: '120px',
+                }}
+              >
+                <img
+                  src={collection.image}
+                  alt={collection.name}
+                  style={{
+                    width: '100%',
+                    height: 'auto',
+                    borderRadius: '8px',
+                    boxShadow: '0 2px 6px rgba(0, 0, 0, 0.1)',
+                  }}
+                />
+                <h4 style={{ marginTop: '8px', fontSize: '14px' }}>
+                  {collection.name}
+                </h4>
               </div>
             ))}
+    
+            {/* Add Collection Button */}
+            <div
+              style={{
+                textAlign: 'center',
+                flexShrink: 0,
+                width: '120px',
+                cursor: 'pointer',
+              }}
+            >
+              <button
+                onClick={() => setShowAddCollection(!showAddCollection)}
+                style={{
+                  width: '100%',
+                  padding: '10px',
+                  borderRadius: '8px',
+                  backgroundColor: '#007bff',
+                  color: '#fff',
+                  border: 'none',
+                  cursor: 'pointer',
+                }}
+              >
+                Add Collection
+              </button>
+            </div>
+    
+            {/* Signout Button */}
+            <div
+              style={{
+                textAlign: 'center',
+                flexShrink: 0,
+                width: '120px',
+                cursor: 'pointer',
+              }}
+            >
+              <button
+                onClick={() => {
+                  localStorage.removeItem('user');
+                  setUser(null);
+                  setCollections([]);
+                }}
+                style={{
+                  width: '100%',
+                  padding: '10px',
+                  borderRadius: '8px',
+                  backgroundColor: '#dc3545',
+                  color: '#fff',
+                  border: 'none',
+                  cursor: 'pointer',
+                }}
+              >
+                Signout
+              </button>
+            </div>
           </div>
-          {/* Add Collection */}
-          <button onClick={() => setShowAddCollection(!showAddCollection)}>
-              Add Collection
-            </button>
-            
-            {/* Signup Form */}
-            {showAddCollection && (
-              <div style={{ marginTop: '10px' }}>
-                <form onSubmit={(event) => handleAddCollection(event)}>
-                  <div>
-                    <label>
-                      Collection Name:
-                      <input type="text" name="name" />
-                    </label>
-                  </div>
-                  <button type="submit">Submit</button>
-                </form>
-              </div>
-            )}
-          <button onClick={(event)=>{
-            localStorage.removeItem('user')
-            setUser(null)
-            setCollections([])
-          }}>Signout</button>
+    
+          {/* Add Collection Form */}
+          {showAddCollection && (
+            <div style={{ marginTop: '10px' }}>
+              <form onSubmit={(event) => handleAddCollection(event)}>
+                <div>
+                  <label>
+                    Collection Name:
+                    <input type="text" name="name" />
+                  </label>
+                </div>
+                <button type="submit">Submit</button>
+              </form>
+            </div>
+          )}
         </div>
-      )
-    }
+      );
+    }    
   }
 
   const renderCollectionView = () => {
@@ -288,21 +358,40 @@ function App() {
                 style={{ width: '100%', maxWidth: '300px', height: 'auto' }} // Ensure the image is responsive
               />
               <h3>{collections[currentCollection.id].name}</h3>
-              <div className="collection-items" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+    
+              {/* Vertical Scrollable Track List */}
+              <div
+                className="collection-items"
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '12px',
+                  maxHeight: '300px', // Set a maximum height for the list
+                  overflowY: 'auto', // Enable vertical scrolling
+                  padding: '10px 0',
+                  border: '1px solid #ddd',
+                  borderRadius: '8px',
+                  backgroundColor: '#f9f9f9',
+                }}
+              >
                 {collections[currentCollection.id].items.map((item, index) => (
                   <div
                     key={index}
                     onClick={(event) => handlePlay(currentCollection.id, item)}
                     style={{
                       padding: '10px',
-                      border: '1px solid #ddd',
-                      borderRadius: '8px',
-                      backgroundColor: '#f9f9f9',
+                      borderBottom: '1px solid #eee', // Add a subtle separator between items
                       cursor: 'pointer',
                       transition: 'background-color 0.3s',
                     }}
+                    onMouseEnter={(e) =>
+                      (e.currentTarget.style.backgroundColor = '#f1f1f1')
+                    }
+                    onMouseLeave={(e) =>
+                      (e.currentTarget.style.backgroundColor = 'transparent')
+                    }
                   >
-                    <p>{`${item.artist} - ${item.title}`}</p>
+                    <p style={{ margin: 0 }}>{`${item.artist} - ${item.title}`}</p>
                   </div>
                 ))}
               </div>
@@ -313,7 +402,7 @@ function App() {
         </div>
       );
     }
-  };
+  }
 
   const fetchTracksByCollection = async (userId) => {
     try {
@@ -357,48 +446,36 @@ function App() {
 
 return (
   <div className="App">
-    <div className="main-content">
-      {/* Left Sidebar */}
-      {renderCollectionsOrSignin()}
-
-      {/* Center Content */}
-      <div className="center-content">
-        <h2>Add Track</h2>
-        <div className="form-container">
-          <form onSubmit={handleSubmit} className="url-form">
-            <label htmlFor="url">Enter URL:</label>
-            <input
-              type="text"
-              id="url"
-              value={url}
-              onChange={(e) => setUrl(e.target.value)}
-              placeholder="https://www.youtube.com/YourFavSong"
-              required
-            />
-            <button type="submit" disabled={loading} className="submit-btn">
-              {loading ? 'Processing...' : 'Process URL'}
-            </button>
-          </form>
-
-          {responseMessage && (
-            <div className="response-message">
-              <p>{responseMessage}</p>
-            </div>
-          )}
-        </div>
-        <div className="track-list-container">
-          <TrackList value={loadTracks} />
-        </div>
-      </div>
-
-
-      {/* Right Sidebar */}
-      {renderCollectionView()}
+    {/* Sign-in/Login Section */}
+    <div className="signin-section">
+      {renderCollectionsOrSignin()} {/* Assuming this renders the sign-in and login options */}
     </div>
 
-    {/* Audio Player */}
+    {/* Collections Section */}
+    <div className="collections-section">
+      <h2>Collections</h2>
+      <div className="collections-scroll-container">
+        {renderCollectionView()} {/* Assuming this renders collection items */}
+      </div>
+    </div>
+
+    {/* Tracklist Section */}
+    <div className="tracklist-section">
+      <h2>Track List</h2>
+      <div className="track-list-container">
+        <TrackList value={loadTracks} />
+      </div>
+    </div>
+
+    {/* HLS Player */}
     <div className="audio-bar">
-      <HLSPlayer bundle={playlist.length !== 0 ? playlist[playListIndex] : { context: "NA", collection: -1, resource: '' }} />
+      <HLSPlayer
+        bundle={
+          playlist.length !== 0
+            ? playlist[playListIndex]
+            : { context: "NA", collection: -1, resource: "" }
+        }
+      />
     </div>
   </div>
 );

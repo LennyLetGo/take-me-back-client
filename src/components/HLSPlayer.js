@@ -174,9 +174,6 @@ function HLSPlayer({ bundle }) {
 
         {/* Audio Player */}
         <div className="audio-player-center">
-          <p>
-            <strong>{bundle.resource.replaceAll("_", " ")}</strong>
-          </p>
           <audio ref={audioRef} controls autoPlay onEnded={handleOnEnded}>
             <p>Your browser does not support HTML5 audio.</p>
           </audio>

@@ -119,26 +119,6 @@
   height: auto;
 }
 
-/* Collection items layout */
-.collection-items {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.collection-items div {
-  padding: 10px;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  background-color: #f9f9f9;
-  cursor: pointer;
-  transition: background-color 0.3s;
-}
-
-.collection-items div:hover {
-  background-color: #e0e0e0;
-}
-
 /* Make text elements responsive */
 h3 {
   font-size: 1.2rem;
@@ -146,14 +126,14 @@ h3 {
 }
 
 .track-list {
-  max-height: calc(100vh - 15vh); /* Adjust height to fit the available space between form and audio player */
+  max-height: calc(100vh - 20vh); /* Adjust height to fit the available space between form and audio player */
   overflow-y: auto;
 }
 
 .track-list-container {
   flex-grow: 1; /* This ensures the track list grows and takes available space */
   overflow-y: auto; /* Enable vertical scrolling */
-  max-height: calc(100vh - 30vh);
+  max-height: 90%;
 }
 /* styles.css or audioPlayer.css */
 
@@ -163,6 +143,7 @@ h3 {
   bottom: 0;
   left: 0;
   width: 100%;
+  height: 7vh;
   background-color: #fff; /* Optional: background color to separate it visually */
   box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.2); /* Optional: shadow for a floating effect */
   z-index: 1000; /* Ensures the audio player stays on top of other content */
@@ -194,7 +175,7 @@ h3 {
   .track-list-container {
     flex-grow: 1; /* This ensures the track list grows and takes available space */
     overflow-y: auto; /* Enable vertical scrolling */
-    max-height: calc(100vh - 52vh);
+    max-height: calc(100vh - 25vh);
   }
 }
 /* OLD vvv */

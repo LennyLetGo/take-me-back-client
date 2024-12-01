@@ -7,6 +7,7 @@
     width: 100%;
     padding: 10px 20px;
     box-sizing: border-box;
+    height: 8vh
   }
   
   /* Audio player controls container (Previous, Next, and Center content) */
@@ -15,8 +16,7 @@
     align-items: center;
     justify-content: space-between; /* Space between previous, center, and next */
     width: 100%; /* Takes the full width */
-    max-width: 1000px; /* Optional: Set a max width for the whole player */
-    padding: 10px 0;
+    height: 3vh;
   }
   
   /* Styling for the side text buttons (Previous and Next) */
@@ -32,6 +32,7 @@
   .audio-player-center {
     flex-grow: 1;
     text-align: center;
+    justify-content: center;
   }
   
   audio {

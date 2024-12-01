@@ -67,8 +67,8 @@ function TrackList(props) {
     cursor: 'pointer',
   };
   return (
-    <div style={{ maxHeight: '75vh', padding: '10px' }}>
-      <h3>Track List</h3>
+    <div style={{ maxHeight: '100%', padding: '10px', paddingBottom:'10vh' }}>
+      <h4>Search</h4>
       <input
         type="text"
         value={filter}
