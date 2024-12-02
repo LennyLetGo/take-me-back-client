@@ -19,30 +19,107 @@ function HLSPlayer({ bundle }) {
   const setSuggestedSong = useContext(NowPlayingContext).setSuggestedSong
   const fetchSuggestedSong = useContext(NowPlayingContext).fetchSuggestedSong
   const setFetchSuggestedSong = useContext(NowPlayingContext).setFetchSuggestedSong
+  const trailingHistory = useContext(NowPlayingContext).trailingHistory
+  const setTrailingHistory = useContext(NowPlayingContext).setTrailingHistory
+  const addToTrailingHistory = useContext(NowPlayingContext).addToTrailingHistory
   const currentCollection = useContext(CollectionsContext).currentCollection
+  const removeDuplicates = useContext(NowPlayingContext).removeDuplicates
   
+  // This runs after a track is loaded so we realistically have forever to 
+  // determine if a track has been played before i.e. not going to optimize... yet
+  const isPlayedRecently = async (track) => {
+    var is_played = false
+    var h = 0
+    while (h < trailingHistory.length) {
+      // console.log(trailingHistory[h].resource)
+      // console.log("EQUALS?")
+      // console.log(`${track.artist}-${track.title}`.replaceAll(" ", "_"))
+      if (trailingHistory[h].resource === `${track.artist}-${track.title}`.replaceAll(" ", "_")) {
+        is_played = true
+        break
+      }
+      h+=1
+    }
+    return is_played
+  }
+  function shuffleArray(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]]; // Swap elements
+    }
+    return array;
+  }
+
   const fetchSuggested = async () => {
-    console.log('fetching Suggested song!')
+    console.log('fetchSuggested')
     // Check resource and how to fetch suggested song
     if(bundle.context === 'tracklist') {
       // fetch suggested from tracklist
       if(fetchSuggestedSong) {
-        const res = await axios.get("http://192.168.5.217:5000/tracks")
-        const tracks = res.data.tracks
-        var track = tracks[(Math.floor(tracks.length * Math.random()))]
-        var currentTrackResource = `${track.artist}-${track.title}`.replaceAll(" ", "_")
-        while(currentTrackResource === playlist[playlistIndex].resource) {
-          track = tracks[(Math.floor(tracks.length * Math.random()))]
-          currentTrackResource = `${track.artist}-${track.title}`.replaceAll(" ", "_")
+        // Try getting suggested songs
+        console.log(trailingHistory)
+        const similiar_res = await axios.get(`http://192.168.5.217:5000/similiar_tracks/${bundle.resource}`)
+        const similiar = shuffleArray(similiar_res.data.tracks)
+        var suggested = null
+        var is_recent = similiar.length == 0 // this whole logic here is really delicate
+        var l = 0
+        while(l < similiar.length) {
+          suggested = similiar[l]
+          is_recent = await isPlayedRecently(suggested)
+          if(!is_recent) {
+            break
+          }
+          l+=1
         }
-        setSuggestedSong({
-          context: "tracklist",
-          collection: -1,
-          resource: currentTrackResource
-        })
-        setFetchSuggestedSong(false)
-        console.log('Suggested Song: ')
-        console.log(currentTrackResource)
+        // Get all tracks
+        if(is_recent) {
+          console.log("Playing Random song")
+          const res = await axios.get("http://192.168.5.217:5000/tracks")
+          const tracks = shuffleArray(res.data.tracks)
+          
+          // DID WE PLAY ALL THE SONGS?
+          if (tracks <= trailingHistory.length) {
+            console.log('RESETTING HISTORY')
+            setTrailingHistory([])
+          }
+
+          var suggested = tracks[0]
+          var is_recent = false
+          var l = 0
+          while(l < tracks.length) {
+            suggested = tracks[l]
+            is_recent = await isPlayedRecently(suggested)
+            if(!is_recent) {
+              break
+            }
+            l+=1
+          }
+          var currentTrackResource = `${suggested.artist}-${suggested.title}`.replaceAll(" ", "_")
+          //set suggested song
+          setSuggestedSong({
+            context: "tracklist",
+            collection: -1,
+            resource: currentTrackResource
+          })
+          addToTrailingHistory(bundle)
+          setFetchSuggestedSong(false)
+          console.log('Suggested Song: ')
+          console.log(currentTrackResource)
+        }
+        else {
+          console.log("Playing similiar song")
+          //set suggested song
+          let next_bundle ={
+            context: "tracklist",
+            collection: -1,
+            resource: `${suggested.artist}-${suggested.title}`.replaceAll(" ", "_")
+          } 
+          setSuggestedSong(next_bundle)
+          addToTrailingHistory(bundle)
+          setFetchSuggestedSong(false)
+          console.log('Suggested Song: ')
+          console.log(`${suggested.artist}-${suggested.title}`.replaceAll(" ", "_"))
+        }
       }
     }
     else if (bundle.context === 'collection') {
@@ -54,6 +131,7 @@ function HLSPlayer({ bundle }) {
         console.log(currentCollection)
       }
     }
+    // removeDuplicates()
   }
   // Dont double up on listeners
   eventEmitter.removeAll('fetchSuggested', fetchSuggested)
@@ -146,12 +224,25 @@ function HLSPlayer({ bundle }) {
       }
     }
   }
-  const handleSkip = (event) => {
+  const handleSkip = async (event) => {
     if(playlistIndex < playlist.length-1) {
       setPlaylistIndex(playlistIndex+1)
     }
     else {
-      setPlaylistIndex(playlist.length-1)
+      if(fetchSuggestedSong) {
+        await fetchSuggested()
+        await addToPlaylist(suggestedSong)
+        setFetchSuggestedSong(true)
+        setPlaylistIndex(playlistIndex+1)
+      }
+      else if (suggestedSong.resource === bundle.resource){
+        // do nothing
+      }
+      else {
+        await addToPlaylist(suggestedSong)
+        setFetchSuggestedSong(true)
+        setPlaylistIndex(playlistIndex+1)
+      }
     }
   }
   

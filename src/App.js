@@ -459,6 +459,31 @@ return (
       </div>
     </div>
 
+    {/* Add song */}
+    <h2>Add Track</h2>
+    <div className="form-container">
+      <form onSubmit={handleSubmit} className="url-form">
+        <label htmlFor="url">Enter URL:</label>
+        <input
+          type="text"
+          id="url"
+          value={url}
+          onChange={(e) => setUrl(e.target.value)}
+          placeholder="https://www.youtube.com/YourFavSong"
+          required
+        />
+        <button type="submit" disabled={loading} className="submit-btn">
+          {loading ? 'Processing...' : 'Process URL'}
+        </button>
+      </form>
+
+      {responseMessage && (
+        <div className="response-message">
+          <p>{responseMessage}</p>
+        </div>
+      )}
+    </div>
+
     {/* Tracklist Section */}
     <div className="tracklist-section">
       <h2>Track List</h2>
