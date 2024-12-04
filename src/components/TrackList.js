@@ -4,6 +4,9 @@ import './TrackList.css';
 import axios from 'axios';
 import { CollectionsContext } from '../context/CollectionsContext'; // Import context
 import { NowPlayingContext } from '../context/NowPlayingContext';
+import { UserContext } from '../context/userContext';
+
+import MyCollection from './MyCollections';
 
 function TrackList(props) {
   const [tracks, setTracks] = useState([]);
@@ -15,6 +18,7 @@ function TrackList(props) {
   const playListIndex = useContext(NowPlayingContext).playlistIndex
   const setPlaylistIndex = useContext(NowPlayingContext).setPlaylistIndex
   const addToPlaylist = useContext(NowPlayingContext).addToPlaylist
+  const user = useContext(UserContext).user
   console.log('\n--- Tracklist Rendering ---')
 
   useEffect(() => {
@@ -69,6 +73,7 @@ function TrackList(props) {
   };
   return (
     <div style={{ maxHeight: '100%', padding: '10px', paddingBottom:'10vh' }}>
+      <MyCollection user={user}/>
       <h4>Search</h4>
       <input
         type="text"
@@ -87,7 +92,6 @@ function TrackList(props) {
         className="tracklist"
         style={{
           overflowY: 'auto',
-          maxHeight: '90%',
           width: '100%',
           display: 'flex',
           flexDirection: 'column',
@@ -119,7 +123,7 @@ function TrackList(props) {
                   onClick={() => handleAddTrackToCollection(currentCollection.id, track)}
                   style={buttonStyle}
                 >
-                  Add to Collection
+                  {`Add to "${currentCollection.name}"`}
                 </button>
                 <button
                   onClick={() => handlePlay(track)}

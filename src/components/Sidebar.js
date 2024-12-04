@@ -2,7 +2,7 @@ import React, { useContext, useState } from 'react';
 
 import { SidebarContext } from '../context/SidebarContext';
 
-const Sidebar = () => {
+const Sidebar = props => {
   const [isExploreOpen, setIsExploreOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
 
@@ -12,6 +12,51 @@ const Sidebar = () => {
   const currentTab = useContext(SidebarContext).currentTab // Default is 'home'
   const setCurrentTab = useContext(SidebarContext).setCurrentTab
 
+  const user = props.user
+
+  const renderUserLogin = () => {
+    if(user === null) {
+        return (
+            <div style={profileContainerStyle}>
+              <div style={profileStyle} onClick={toggleProfile}>
+                Login/Signup
+              </div>
+              {isProfileOpen && (
+                <div style={profileOptionsStyle}>
+                  <p onClick={(event) => {
+                      setCurrentTab('profile-login')
+                  }}>Login</p>
+                  <p onClick={(event) => {
+                      setCurrentTab('profile-signup')
+                  }}>Signup</p>
+                </div>
+              )}
+            </div>
+        )
+    }
+    else {
+        return (
+            <div style={profileContainerStyle}>
+              <div style={profileStyle} onClick={toggleProfile}>
+                {user.username}
+              </div>
+              {isProfileOpen && (
+                <div style={profileOptionsStyle}>
+                  <p onClick={(event) => {
+                      setCurrentTab('profile-profile')
+                  }}>Profile</p>
+                  <p onClick={(event) => {
+                      setCurrentTab('profile-setting')
+                  }}>Settings</p>
+                  <p onClick={(event) => {
+                      setCurrentTab('profile-logout')
+                  }}>Logout</p>
+                </div>
+              )}
+            </div>
+        )
+    }
+  }
   
   return (
     <div style={sidebarStyle}>
@@ -54,24 +99,7 @@ const Sidebar = () => {
       </div>
 
       {/* Profile Section */}
-      <div style={profileContainerStyle}>
-        <div style={profileStyle} onClick={toggleProfile}>
-          USER
-        </div>
-        {isProfileOpen && (
-          <div style={profileOptionsStyle}>
-            <p onClick={(event) => {
-                setCurrentTab('profile-profile')
-            }}>Profile</p>
-            <p onClick={(event) => {
-                setCurrentTab('profile-setting')
-            }}>Settings</p>
-            <p onClick={(event) => {
-                setCurrentTab('profile-logout')
-            }}>Logout</p>
-          </div>
-        )}
-      </div>
+      {renderUserLogin()}
     </div>
   );
 };

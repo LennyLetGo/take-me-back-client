@@ -3,10 +3,14 @@ import React, { useState, useContext } from 'react';
 import Sidebar from '../components/Sidebar';
 import TrackList from '../components/TrackList';
 import HLSPlayer from '../components/HLSPlayer';
+import HomeComponent from '../components/HomeComponent';
+import Login from '../components/Login';
+import SignUp from '../components/SignUp';
 
 import { CollectionsContext } from '../context/CollectionsContext';
 import { NowPlayingContext } from '../context/NowPlayingContext';
 import { SidebarContext } from '../context/SidebarContext';
+import { UserContext } from '../context/userContext';
 
 const Home = () => {
     const currentTab = useContext(SidebarContext).currentTab // Default is 'home'
@@ -19,6 +23,8 @@ const Home = () => {
     const playListIndex = useContext(NowPlayingContext).playlistIndex
     const setPlayListIndex = useContext(NowPlayingContext).setPlaylistIndex
     const addToPlaylist = useContext(NowPlayingContext).addToPlaylist
+    
+    const user = useContext(UserContext).user
 
     const renderPage = () => {
         console.log('Render Page...')
@@ -26,11 +32,20 @@ const Home = () => {
             console.log('returning TrackList')
             return (<TrackList/>)
         }
+        else if(currentTab==='home') {
+            return (<HomeComponent user={user}/>)
+        }
+        else if(currentTab === 'profile-login') {
+            return (<Login/>)
+        }
+        else if(currentTab === 'profile-signup') {
+            return (<SignUp/>)
+        }
     }
 
     return (
         <div style={styles.container}>
-            <Sidebar />
+            <Sidebar user={user}/>
             <div style={styles.content}>
                 {renderPage()}
                 {/* HLS Player */}
