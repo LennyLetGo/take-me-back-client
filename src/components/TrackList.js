@@ -15,6 +15,7 @@ function TrackList(props) {
   const playListIndex = useContext(NowPlayingContext).playlistIndex
   const setPlaylistIndex = useContext(NowPlayingContext).setPlaylistIndex
   const addToPlaylist = useContext(NowPlayingContext).addToPlaylist
+  console.log('\n--- Tracklist Rendering ---')
 
   useEffect(() => {
     const fetchTracks = async () => {
