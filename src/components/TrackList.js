@@ -122,8 +122,10 @@ function TrackList(props) {
                 <button
                   onClick={() => handleAddTrackToCollection(currentCollection.id, track)}
                   style={buttonStyle}
+                  disabled={(currentCollection===null)}
+                  display={!(currentCollection===null)}
                 >
-                  {`Add to "${currentCollection.name}"`}
+                  {(currentCollection===null) ? "Please select a Collection":`Add to "${currentCollection?.name}"`}
                 </button>
                 <button
                   onClick={() => handlePlay(track)}
