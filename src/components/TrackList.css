@@ -15,8 +15,8 @@ input[type="text"] {
     flex-direction: column;
     flex-grow: 1;
     gap: 15px; /* Gap between track items */
-    padding-bottom: 1vh;
-    max-height: 80vh;
+    padding-bottom: 8vh;
+    max-height: 69vh;
   }
   
   /* Individual track item styling */
