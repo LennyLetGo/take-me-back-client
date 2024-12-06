@@ -3,6 +3,7 @@ import Hls from 'hls.js';
 import axios from 'axios';
 import { CollectionsContext } from '../context/CollectionsContext';
 import { NowPlayingContext } from '../context/NowPlayingContext';
+import { UserContext } from '../context/userContext';
 import { eventEmitter } from '../util/EventEmitter'; // Path to your event emitter
 import TrackList from './TrackList';
 import './HLSPlayer.css'
@@ -24,6 +25,7 @@ function HLSPlayer({ bundle }) {
   const addToTrailingHistory = useContext(NowPlayingContext).addToTrailingHistory
   const currentCollection = useContext(CollectionsContext).currentCollection
   const removeDuplicates = useContext(NowPlayingContext).removeDuplicates
+  const user = useContext(UserContext).user
   
   // This runs after a track is loaded so we realistically have forever to 
   // determine if a track has been played before i.e. not going to optimize... yet
@@ -99,7 +101,9 @@ function HLSPlayer({ bundle }) {
           setSuggestedSong({
             context: "tracklist",
             collection: -1,
-            resource: currentTrackResource
+            resource: currentTrackResource,
+            artist: suggested.artist,
+            title: suggested.title
           })
           addToTrailingHistory(bundle)
           setFetchSuggestedSong(false)
@@ -112,7 +116,9 @@ function HLSPlayer({ bundle }) {
           let next_bundle ={
             context: "tracklist",
             collection: -1,
-            resource: `${suggested.artist}-${suggested.title}`.replaceAll(" ", "_")
+            resource: `${suggested.artist}-${suggested.title}`.replaceAll(" ", "_"),
+            artist: suggested.artist,
+            title: suggested.title
           } 
           setSuggestedSong(next_bundle)
           addToTrailingHistory(bundle)
@@ -164,8 +170,8 @@ function HLSPlayer({ bundle }) {
       // Media
       if ('mediaSession' in navigator) {
         navigator.mediaSession.metadata = new MediaMetadata({
-          title: bundle.resource,
-          artist: '',
+          title: bundle.title,
+          artist: bundle.artist,
           album: '',
           artwork: [
             //{ src: 'path-to-artwork.jpg', sizes: '512x512', type: 'image/jpeg' },
@@ -203,6 +209,9 @@ function HLSPlayer({ bundle }) {
   // Playlist functions
   const handleOnEnded = (event) => {
     console.log('Song ended')
+    // TODO Capture Stream
+    logStream(playlist[playlistIndex]) // TODO... Await?
+    // Get next song
     console.log(playlist[playlistIndex].context)
     if(playlistIndex < playlist.length-1) {
       setPlaylistIndex(playlistIndex+1)
@@ -220,11 +229,16 @@ function HLSPlayer({ bundle }) {
         setPlaylistIndex(playlistIndex+1)
       }
       else {
+        // Loop
         setPlaylistIndex(0)
+        // 
       }
     }
   }
   const handleSkip = async (event) => {
+    // Capture Stream
+    logStream(playlist[playlistIndex]) // TODO... Await?
+
     if(playlistIndex < playlist.length-1) {
       setPlaylistIndex(playlistIndex+1)
     }
@@ -247,11 +261,30 @@ function HLSPlayer({ bundle }) {
   }
   
   const handlePrevious = (event) => {
+    // Capture stream
+    logStream(playlist[playlistIndex]) // TODO... Await?
     if(playlistIndex == 0) {
       setPlaylistIndex(0)
     }
     else {
       setPlaylistIndex(playlistIndex-1)
+    }
+  }
+
+  const logStream = async (bundle) => {
+    // user_id, title, artist, collection_id, length
+    const user_id = user?.id ?? -1
+    const title = bundle.title
+    const artist = bundle.artist
+    const collection_id = bundle.collection
+    const length = Math.floor(audioRef.current.currentTime) // This is in seconds
+    //post the stream
+    try {
+      const res = await axios.post("http://192.168.5.217:5000/streams/add", {user_id, title, artist, collection_id, length})
+      console.log("Stream Captured successfully")
+    }
+    catch {
+      console.log("Error capturing stream")
     }
   }
 

@@ -79,7 +79,9 @@ function MobileApp() {
         addToPlaylist({
           context: "collection",
           collection: collectionId,
-          resource: resource
+          resource: resource,
+          title: currentTrack.title,
+          artist: currentTrack.artist
         }) // true because we want to play now
         appendToEnd = true
       }
@@ -89,11 +91,19 @@ function MobileApp() {
           addToPlaylist({
             context: "collection",
             collection: collectionId,
-            resource: currentTrackResource
+            resource: currentTrackResource,
+            title: currentTrack.title,
+            artist: currentTrack.artist
           }) 
         }
         else {
-          earlierInPlaylistTracks.push(currentTrackResource)
+          earlierInPlaylistTracks.push({
+            context: "collection",
+            collection: collectionId,
+            resource: currentTrackResource,
+            title: currentTrack.title,
+            artist: currentTrack.artist
+          })
         }
       }
       i+=1
@@ -102,11 +112,7 @@ function MobileApp() {
     // Add the songs we skipped at the beginning of the playlist to the end
     while(j < earlierInPlaylistTracks.length) {
       console.log(`Adding ${earlierInPlaylistTracks[j]}`)
-      addToPlaylist({
-        context: "collection",
-        collection: collectionId,
-        resource: earlierInPlaylistTracks[j]
-      })
+      addToPlaylist(earlierInPlaylistTracks[j])
       j+=1
     }
     console.log(playlist)

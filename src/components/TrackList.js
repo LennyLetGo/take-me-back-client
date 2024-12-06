@@ -56,12 +56,14 @@ function TrackList(props) {
     let bundle = {
       context: "tracklist",
       collection: -1,
-      resource: resource
+      resource: resource,
+      title: track.title,
+      artist: track.artist
     }
     console.log('Setting now playing:')
     console.log(bundle)
     addToPlaylist(bundle)
-    setPlaylistIndex(playlist.length)
+    setPlaylistIndex(playlist.length) // This could be causing a rerender everytime the song changes?.. Add "incrementPlaylistIndex" function in context?
   }
   const buttonStyle = {
     padding: '8px 12px',
