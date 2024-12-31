@@ -60,7 +60,7 @@ function HLSPlayer({ bundle }) {
       if(fetchSuggestedSong) {
         // Try getting suggested songs
         console.log(trailingHistory)
-        const similiar_res = await axios.get(`http://192.168.5.217:5000/similiar_tracks/${bundle.resource}`)
+        const similiar_res = await axios.get(`http://ec2-3-128-188-22.us-east-2.compute.amazonaws.com:5000/similiar_tracks/${bundle.resource}`)
         const similiar = shuffleArray(similiar_res.data.tracks)
         var suggested = null
         var is_recent = similiar.length == 0 // this whole logic here is really delicate
@@ -76,7 +76,7 @@ function HLSPlayer({ bundle }) {
         // Get all tracks
         if(is_recent) {
           console.log("Playing Random song")
-          const res = await axios.get("http://192.168.5.217:5000/tracks")
+          const res = await axios.get("http://ec2-3-128-188-22.us-east-2.compute.amazonaws.com:5000/tracks")
           const tracks = shuffleArray(res.data.tracks)
           
           // DID WE PLAY ALL THE SONGS?
@@ -150,7 +150,7 @@ function HLSPlayer({ bundle }) {
       const hls = new Hls();
 
       // Construct the playlist URL dynamically based on the fileId
-      const playlistUrl = `http://192.168.5.217:5000/audio/${bundle.resource}`;
+      const playlistUrl = `http://ec2-3-128-188-22.us-east-2.compute.amazonaws.com:5000/audio/${bundle.resource}`;
 
       // Attach the HLS instance to the audio element
       hls.loadSource(playlistUrl);
@@ -280,7 +280,7 @@ function HLSPlayer({ bundle }) {
     const length = Math.floor(audioRef.current.currentTime) // This is in seconds
     //post the stream
     try {
-      const res = await axios.post("http://192.168.5.217:5000/streams/add", {user_id, title, artist, collection_id, length})
+      const res = await axios.post("http://ec2-3-128-188-22.us-east-2.compute.amazonaws.com:5000/streams/add", {user_id, title, artist, collection_id, length})
       console.log("Stream Captured successfully")
     }
     catch {

@@ -37,7 +37,7 @@ const MyCollection = props => {
           setCollections([...collections, newCollection])
         }
         // Add the collection to the database... dont need to wait?
-        axios.post('http://192.168.5.217:5000/collections', {collection_id, user_id, collection_name, is_public})
+        axios.post('http://ec2-3-128-188-22.us-east-2.compute.amazonaws.com:5000/collections', {collection_id, user_id, collection_name, is_public})
         setShowAddCollection(false) // ?
     }
 

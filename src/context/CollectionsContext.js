@@ -27,13 +27,13 @@ export const CollectionsProvider = ({ children }) => {
           }
       });
     });
-    const res = await axios.post("http://192.168.5.217:5000/collection/insert", { collection_id, username, title, artist  })
+    const res = await axios.post("http://ec2-3-128-188-22.us-east-2.compute.amazonaws.com:5000/collection/insert", { collection_id, username, title, artist  })
   };
   const fetchTracksByCollection = async (username) => {
     try {
         console.log('Fetching collections')
         // Call the API to fetch tracks
-        const response = await axios.get(`http://192.168.5.217:5000/collection/${username}`);
+        const response = await axios.get(`http://ec2-3-128-188-22.us-east-2.compute.amazonaws.com:5000/collection/${username}`);
 
         if (response.status !== 200) {
             throw new Error('Failed to fetch tracks.');

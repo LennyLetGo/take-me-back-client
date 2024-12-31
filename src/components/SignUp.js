@@ -13,7 +13,7 @@ const SignUp = props => {
         let password = data.get('password')
         var res = null
         try {
-            res = await axios.post("http://192.168.5.217:5000/create-user", {username, password})
+            res = await axios.post("http://ec2-3-128-188-22.us-east-2.compute.amazonaws.com:5000/create-user", {username, password})
         }
         catch {
             return;
