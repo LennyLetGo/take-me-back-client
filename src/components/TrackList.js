@@ -49,7 +49,7 @@ function TrackList(props) {
     //collectionId, name, track, userId, title, artist
     let user = JSON.parse(localStorage.getItem('user'))
     console.log(user.id)
-    addTrackToCollection(collectionId, currentCollection.name, track, user.id, track.title, track.artist); // Add track to selected collection
+    addTrackToCollection(collectionId, user.username, track.title, track.artist, track); // Add track to selected collection
   };
   const handlePlay = (track) => {
     let resource = `${track.artist.replaceAll(' ', '_')}-${track.title.replaceAll(' ', '_')}`

@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import React, { useEffect, useContext } from 'react';
 
 import Sidebar from '../components/Sidebar';
 import TrackList from '../components/TrackList';
@@ -6,11 +6,13 @@ import HLSPlayer from '../components/HLSPlayer';
 import HomeComponent from '../components/HomeComponent';
 import Login from '../components/Login';
 import SignUp from '../components/SignUp';
+import Radio from '../components/Radio';
 
 import { CollectionsContext } from '../context/CollectionsContext';
 import { NowPlayingContext } from '../context/NowPlayingContext';
 import { SidebarContext } from '../context/SidebarContext';
 import { UserContext } from '../context/userContext';
+import { ChannelContext } from '../context/ChannelContext';
 
 const Home = () => {
     const currentTab = useContext(SidebarContext).currentTab // Default is 'home'
@@ -25,6 +27,15 @@ const Home = () => {
     const addToPlaylist = useContext(NowPlayingContext).addToPlaylist
     
     const user = useContext(UserContext).user
+    useEffect(() => {
+        // Force this page to rerender when user changes
+    }, [user])
+
+    // Load in the first channel by default
+    const setCurrentChannel = useContext(ChannelContext).setCurrentChannel
+    useEffect(() => {
+
+    }, [])
 
     const renderPage = () => {
         console.log('Render Page...')
@@ -40,6 +51,9 @@ const Home = () => {
         }
         else if(currentTab === 'profile-signup') {
             return (<SignUp/>)
+        }
+        else if(currentTab === 'explore-channels') {
+            return (<Radio/>)
         }
     }
 

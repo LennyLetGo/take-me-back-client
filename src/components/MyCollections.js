@@ -3,6 +3,7 @@ import axios from 'axios';
 
 import { CollectionsContext } from '../context/CollectionsContext';
 import { NowPlayingContext } from '../context/NowPlayingContext';
+import { UserContext } from '../context/userContext';
 
 const MyCollection = props => {
     const selectedItem = useContext(CollectionsContext).currentCollection
@@ -11,28 +12,33 @@ const MyCollection = props => {
     const collections = useContext(CollectionsContext).collections
     const setCollections = useContext(CollectionsContext).setCollections
     const currentCollection = useContext(CollectionsContext).currentCollection
+    const fetchTracksByCollection = useContext(CollectionsContext).fetchTracksByCollection
     
     const [showAddCollection, setShowAddCollection] = useState(false)
-
-    const user = props.user
+    const user = useContext(UserContext).user
+    console.log("\n---- Rendering MyCollection -----")
 
     const handleAddCollection = (event) => {
         event.preventDefault()
         let data = new FormData(event.target);
-        let name = data.get('name')
+        let collection_name = data.get('name')
+        let is_public = data.get('is_public')
+        let collection_id = collections.length
+        let user_id = user.id
         let newCollection = {
             id: collections.length,
-            name: name,
+            name: collection_name,
             items: [],
             image: 'https://via.placeholder.com/100', // Placeholder image
         }
-        console.log(collections)
         if(collections.length === 0) {
           setCollections([newCollection])
         }else {
           setCollections([...collections, newCollection])
         }
-        setShowAddCollection(false)
+        // Add the collection to the database... dont need to wait?
+        axios.post('http://192.168.5.217:5000/collections', {collection_id, user_id, collection_name, is_public})
+        setShowAddCollection(false) // ?
     }
 
     const renderCollectionsOrSignin = () => {
@@ -140,46 +146,11 @@ const MyCollection = props => {
         }    
     }
     useEffect(()=> {
-        const fetchTracksByCollection = async (userId) => {
-            try {
-                // Call the API to fetch tracks
-                const response = await axios.get(`http://192.168.5.217:5000/collections/${userId}`);
-        
-                if (response.status !== 200) {
-                    throw new Error('Failed to fetch tracks.');
-                }
-        
-                const tracks = response.data.tracks;
-        
-                // Group tracks by collection name and structure the data
-                const groupedCollections = Object.values(
-                    tracks.reduce((acc, track) => {
-                        const { name, title, artist } = track;
-        
-                        if (!acc[name]) {
-                            acc[name] = {
-                                id: Object.keys(acc).length,
-                                name,
-                                items: [],
-                                image: 'https://via.placeholder.com/100', // Placeholder image
-                            };
-                        }
-        
-                        acc[name].items.push({
-                          artist: artist,
-                          title: title
-                        });
-                        return acc;
-                    }, {})
-                );
-        
-                setCollections(groupedCollections)
-            } catch (error) {
-                console.error('Error fetching tracks:', error);
-                throw error;
-            }
-        };
-        fetchTracksByCollection(user?.id)
+        const getCollections = async () => {
+            await fetchTracksByCollection(user?.username)
+            console.log(collections)
+        }
+        getCollections()
     }, [user])
     
     return (renderCollectionsOrSignin())

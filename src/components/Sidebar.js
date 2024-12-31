@@ -1,6 +1,7 @@
 import React, { useContext, useState } from 'react';
 
 import { SidebarContext } from '../context/SidebarContext';
+import { UserContext } from '../context/userContext';
 
 const Sidebar = props => {
   const [isExploreOpen, setIsExploreOpen] = useState(false);
@@ -12,7 +13,14 @@ const Sidebar = props => {
   const currentTab = useContext(SidebarContext).currentTab // Default is 'home'
   const setCurrentTab = useContext(SidebarContext).setCurrentTab
 
-  const user = props.user
+  const userLogout = useContext(UserContext).userLogout
+  const user = useContext(UserContext).user
+
+  const handleLogout = (event) => {
+    event.preventDefault()
+    userLogout()
+    setIsProfileOpen(false)
+  }
 
   const renderUserLogin = () => {
     if(user === null) {
@@ -50,6 +58,7 @@ const Sidebar = props => {
                   }}>Settings</p>
                   <p onClick={(event) => {
                       setCurrentTab('profile-logout')
+                      handleLogout(event)
                   }}>Logout</p>
                 </div>
               )}
@@ -82,14 +91,14 @@ const Sidebar = props => {
           {isExploreOpen && (
             <ul style={dropdownStyle}>
               <li style={navItemStyle} onClick={(event) => {
+                setCurrentTab('explore-channels')
+              }}>Channels</li>
+              <li style={navItemStyle} onClick={(event) => {
+                setCurrentTab('')
+              }}>Trending</li>
+              <li style={navItemStyle} onClick={(event) => {
                 setCurrentTab('explore-all-tracks')
               }}>All Tracks</li>
-              <li style={navItemStyle} onClick={(event) => {
-                setCurrentTab('explore-2')
-              }}>Option 2</li>
-              <li style={navItemStyle} onClick={(event) => {
-                setCurrentTab('explore-3')
-              }}>Option 3</li>
             </ul>
           )}
           <li style={navItemStyle} onClick={(event) => {
