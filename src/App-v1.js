@@ -140,7 +140,7 @@ function MobileApp() {
     let data = new FormData(event.target);
     let username = data.get('username')
     let password = data.get('password')
-    const res = await axios.post("http://localhost:5000/create-user", {username, password})
+    const res = await axios.post("http://ec2-3-128-188-22.us-east-2.compute.amazonaws.com:5000/create-user", {username, password})
     let user = res.data.user
     if(user) {
       localStorage.setItem('user', JSON.stringify(user))
