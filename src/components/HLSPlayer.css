@@ -1,0 +1,44 @@
+/* styles.css or audioPlayer.css */
+/* Main container that holds the player controls */
+.audio-container {
+    display: flex;
+    justify-content: center; /* Centers the entire audio player section */
+    align-items: center; /* Vertically aligns items in the container */
+    width: 100%;
+    padding: 10px 20px;
+    box-sizing: border-box;
+    height: 8vh
+  }
+  
+  /* Audio player controls container (Previous, Next, and Center content) */
+  .audio-player-controls {
+    display: flex;
+    align-items: center;
+    justify-content: space-between; /* Space between previous, center, and next */
+    width: 100%; /* Takes the full width */
+    height: 3vh;
+  }
+  
+  /* Styling for the side text buttons (Previous and Next) */
+  .side-text {
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 16px;
+    padding: 0 20px; /* Adds padding to create space around the text */
+    flex-shrink: 0; /* Prevents shrinking */
+  }
+  
+  /* Center content (audio player) */
+  .audio-player-center {
+    flex-grow: 1;
+    text-align: center;
+    justify-content: center;
+  }
+  
+  audio {
+    width: 100%;
+    max-width: 400px; /* Optional: Set a max width for the audio player */
+    border-radius: 4px;
+    margin-top: 10px;
+  }
+  
