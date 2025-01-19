@@ -30,6 +30,9 @@ function MobileApp() {
   const [showAddCollection, setShowAddCollection] = useState(false)
   const [user, setUser] = useState(JSON.parse(localStorage.getItem('user')))
   const [fetchCollections, setFetchCollections] = useState(true)
+  const [filter, setFilter] = useState('')
+  const [tracks, setTracks] = useState([]);
+  const [filteredTracks, setFilteredTracks] = useState([])
 
   // Handle form submission
   const handleSubmit = async (e) => {
@@ -450,6 +453,35 @@ function MobileApp() {
     }
 };
 
+// =========================== Tracklist Filtering
+useEffect(() => {
+  const fetchTracks = async () => {
+    try {
+      const response = await axios.get('http://ec2-3-128-188-22.us-east-2.compute.amazonaws.com:5000/tracks');
+      setTracks(response.data.tracks);
+      setFilteredTracks(response.data.tracks);
+    } catch (error) {
+      console.error('Error fetching tracks:', error);
+    }
+  };
+
+  fetchTracks();
+}, []);
+
+const handleFilterChange = (e) => {
+  const value = e.target.value;
+  setFilter(value);
+  if(value !== ''){
+    const filtered = tracks.filter(track =>
+      `${track.artist.toLowerCase()} - ${track.title.toLowerCase()}`.includes(value.toLowerCase())
+    );
+    setFilteredTracks(filtered);
+  }
+  else {
+    setFilteredTracks(tracks)
+  }
+};
+
 return (
   <div className="App">
     {/* Sign-in/Login Section */}
@@ -493,9 +525,25 @@ return (
     {/* Tracklist Section */}
     <div className="tracklist-section">
       <h2>Track List</h2>
-      <div className="track-list-container">
-        <TrackList value={loadTracks} />
-      </div>
+      <h4>Search</h4>
+        <input
+          type="text"
+          value={filter}
+          onChange={handleFilterChange}
+          placeholder="Search for a track..."
+          style={{
+            width: '100%',
+            padding: '8px',
+            marginBottom: '10px',
+            borderRadius: '4px',
+            border: '1px solid #ccc',
+          }}
+        /> {filteredTracks.length === 0 ? (
+          <p>No tracks found</p>
+        ) : (
+          <div className="track-list-container">
+            <TrackList tracks={filteredTracks}/>
+          </div>)}
     </div>
 
     {/* HLS Player */}

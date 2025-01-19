@@ -9,41 +9,12 @@ import { UserContext } from '../context/userContext';
 import MyCollection from './MyCollections';
 
 function TrackList(props) {
-  const [tracks, setTracks] = useState([]);
-  const [filteredTracks, setFilteredTracks] = useState([]);
-  const [filter, setFilter] = useState('');
   const addTrackToCollection = useContext(CollectionsContext).addTrackToCollection; // Use context
   const currentCollection = useContext(CollectionsContext).currentCollection;
   const playlist = useContext(NowPlayingContext).playlist
-  const playListIndex = useContext(NowPlayingContext).playlistIndex
   const setPlaylistIndex = useContext(NowPlayingContext).setPlaylistIndex
   const addToPlaylist = useContext(NowPlayingContext).addToPlaylist
-  const user = useContext(UserContext).user
   console.log('\n--- Tracklist Rendering ---')
-
-  useEffect(() => {
-    const fetchTracks = async () => {
-      try {
-        const response = await axios.get('http://ec2-3-128-188-22.us-east-2.compute.amazonaws.com:5000/tracks');
-        setTracks(response.data.tracks);
-        setFilteredTracks(response.data.tracks);
-      } catch (error) {
-        console.error('Error fetching tracks:', error);
-      }
-    };
-
-    fetchTracks();
-  }, []);
-
-  const handleFilterChange = (e) => {
-    const value = e.target.value;
-    setFilter(value);
-
-    const filtered = tracks.filter(track =>
-      `${track.artist.toLowerCase()}-${track.title.toLowerCase()}`.includes(value.toLowerCase())
-    );
-    setFilteredTracks(filtered);
-  };
 
   const handleAddTrackToCollection = (collectionId, track) => {
     //collectionId, name, track, userId, title, artist
@@ -75,21 +46,6 @@ function TrackList(props) {
   };
   return (
     <div style={{ maxHeight: '100%', padding: '10px', paddingBottom:'10vh' }}>
-      <MyCollection user={user}/>
-      <h4>Search</h4>
-      <input
-        type="text"
-        value={filter}
-        onChange={handleFilterChange}
-        placeholder="Search for a track..."
-        style={{
-          width: '100%',
-          padding: '8px',
-          marginBottom: '10px',
-          borderRadius: '4px',
-          border: '1px solid #ccc',
-        }}
-      />
       <div
         className="tracklist"
         style={{
@@ -99,11 +55,8 @@ function TrackList(props) {
           flexDirection: 'column',
           gap: '15px', // Gap between tracks
         }}
-      >
-        {filteredTracks.length === 0 ? (
-          <p>No tracks found</p>
-        ) : (
-          filteredTracks.map((track, index) => (
+      >{
+          props.tracks.map((track, index) => (
             <div
               key={index}
               className="track-item"
@@ -138,7 +91,7 @@ function TrackList(props) {
               </div>
             </div>
           ))
-        )}
+      }
       </div>
     </div>
   );

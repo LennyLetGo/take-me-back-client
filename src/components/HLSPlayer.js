@@ -272,15 +272,15 @@ function HLSPlayer({ bundle }) {
   }
 
   const logStream = async (bundle) => {
-    // user_id, title, artist, collection_id, length
-    const user_id = user?.id ?? -1
+    // username, title, artist, collection_id, length
+    const username = user?.username ?? -1 // user's have username... not id
     const title = bundle.title
     const artist = bundle.artist
     const collection_id = bundle.collection
     const length = Math.floor(audioRef.current.currentTime) // This is in seconds
     //post the stream
     try {
-      const res = await axios.post("http://ec2-3-128-188-22.us-east-2.compute.amazonaws.com:5000/streams/add", {user_id, title, artist, collection_id, length})
+      const res = await axios.post("http://ec2-3-128-188-22.us-east-2.compute.amazonaws.com:5000/streams/add", {username, title, artist, collection_id, length})
       console.log("Stream Captured successfully")
     }
     catch {
